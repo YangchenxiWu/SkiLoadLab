@@ -1,0 +1,23 @@
+# ---- data & outputs (keep private / large) ----
+data/raw/
+data/external/
+data/processed/
+output/
+
+# if you later want to publish example data, create:
+# data/example/ (and do NOT ignore it)
+
+# ---- python ----
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# ---- mac ----
+.DS_Store
+
+# ---- optional ----
+.venv/
+.env
+
+src/model/*.bak_*
+src/model/*_bak_*
