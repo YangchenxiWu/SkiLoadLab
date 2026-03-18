@@ -47,23 +47,7 @@ It is sufficient to reproduce figures and the alpha sweep logic.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
-### 2) Demo: compute combined load (from demo table)
-
-```bash
-python3 src/model/combined_load.py \
-  --in data/example/runs_final_example.csv \
-  --out /tmp/demo_out.csv \
-  --report /tmp/demo_report.json \
-  --alpha 0.5
-
-### 3) Demo: generate figures
-
-```bash
-python3 scripts/make_figures.py \
-  --runs data/example/runs_final_example.csv \
-  --out docs/figures \
-  --pdf
+```
 
 ## Key figures
 ![Alpha sweep](docs/figures/fig06_alpha_sweep.png)
