@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Make publication-style figures from processed SkiLoadLab outputs.
@@ -21,9 +20,9 @@ Design goals:
 import argparse
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
 def ensure_dir(p: Path) -> None:
@@ -162,7 +161,9 @@ def fig_combined_vs_components(df: pd.DataFrame, out_dir: Path, also_pdf: bool) 
     save_fig(fig, out_dir / "fig04_combined_vs_components.png", also_pdf)
 
 
-def fig_top_runs_by_combined(df: pd.DataFrame, out_dir: Path, also_pdf: bool, top_n: int = 10) -> None:
+def fig_top_runs_by_combined(
+    df: pd.DataFrame, out_dir: Path, also_pdf: bool, top_n: int = 10
+) -> None:
     if "combined_load_v2" not in df.columns:
         warn("combined_load_v2 not found; skip top runs bar chart.")
         return
@@ -228,7 +229,11 @@ def main():
 
     ap = argparse.ArgumentParser(description="Generate figures from SkiLoadLab processed outputs.")
     ap.add_argument("--runs", default="data/processed/runs_final.csv", help="Input runs_final.csv")
-    ap.add_argument("--alpha_summary", default="output/alpha_sweep_summary.csv", help="Input alpha_sweep_summary.csv")
+    ap.add_argument(
+        "--alpha_summary",
+        default="output/alpha_sweep_summary.csv",
+        help="Input alpha_sweep_summary.csv",
+    )
     ap.add_argument("--out_dir", default="output/figures", help="Output directory for figures")
     ap.add_argument("--pdf", action="store_true", help="Also export PDF copies")
     ap.add_argument("--top_n", type=int, default=10, help="Top N runs in bar chart")

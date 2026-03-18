@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it."
+title: "SkiLoadLab: Training Load Modeling for Downhill Skiing (Polar + GPX + DEM)"
+authors:
+  - family-names: Wu
+    given-names: Yangchenxi
+repository-code: "https://github.com/YangchenxiWu/SkiLoadLab"
+license: MIT

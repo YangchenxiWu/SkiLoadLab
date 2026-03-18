@@ -4,6 +4,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 
+
 def test_make_figures_runs(tmp_path: Path):
     runs = REPO / "data/example/runs_final_example.csv"
     alpha_summary = REPO / "output/alpha_sweep_summary.csv"  # 可能不存在，所以这里不依赖它
@@ -14,9 +15,12 @@ def test_make_figures_runs(tmp_path: Path):
         [
             sys.executable,
             str(REPO / "scripts/make_figures.py"),
-            "--runs", str(runs),
-            "--alpha_summary", str(alpha_summary),
-            "--out_dir", str(out_dir),
+            "--runs",
+            str(runs),
+            "--alpha_summary",
+            str(alpha_summary),
+            "--out_dir",
+            str(out_dir),
         ],
         capture_output=True,
         text=True,

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import argparse
 import json
@@ -10,7 +9,6 @@ import pandas as pd
 
 
 def zscore(x: pd.Series) -> pd.Series:
-    """NaN-safe z-score."""
     x = pd.to_numeric(x, errors="coerce")
     mu = x.mean(skipna=True)
     sd = x.std(skipna=True)
@@ -23,121 +21,103 @@ def ensure_parent(p: Path) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
 
 
-def main() -> None:
+def corr_safe(a: pd.Series, b: pd.Series) -> float:
+    a = pd.to_numeric(a, errors="coerce")
+    b = pd.to_numeric(b, errors="coerce")
+    m = a.notna() & b.notna()
+    if m.sum() < 3:
+        return float("nan")
+    return float(np.corrcoef(a[m], b[m])[0, 1])
+
+
+def main():
     ap = argparse.ArgumentParser(
-        description="Compute mechanical proxies + combined load (internal + external) from runs_with_hr.csv"
+        description="Compute combined training load by blending internal/external components."
     )
-    ap.add_argument("--in", dest="inp", default="data/processed/runs_with_hr.csv", help="Input CSV")
-    ap.add_argument("--out", default="data/processed/runs_combined_load.csv", help="Output CSV")
-    ap.add_argument("--report", default="output/combined_load_report.json", help="Report JSON")
-    ap.add_argument(
-        "--alpha",
-        type=float,
-        default=0.5,
-        help="Weight for internal load in combined load (0..1). combined = alpha*z_internal + (1-alpha)*z_mech",
-    )
+    ap.add_argument("--in", dest="inp", required=True, help="Input CSV")
+    ap.add_argument("--out", required=True, help="Output CSV")
+    ap.add_argument("--report", required=True, help="Output report JSON")
+    ap.add_argument("--alpha", type=float, default=0.5, help="Weight for internal component (0..1)")
     args = ap.parse_args()
-
-    inp = Path(args.inp)
-    outp = Path(args.out)
-    rep = Path(args.report)
-
-    if not inp.exists():
-        raise FileNotFoundError(f"Input not found: {inp}")
 
     alpha = float(args.alpha)
     if not (0.0 <= alpha <= 1.0):
         raise ValueError("--alpha must be within [0, 1].")
 
-    ensure_parent(outp)
-    ensure_parent(rep)
+    inp = Path(args.inp)
+    outp = Path(args.out)
+    rep = Path(args.report)
 
     df = pd.read_csv(inp)
 
-    # ---- Required columns (from your pipeline) ----
-    required = {"run_id", "duration_s", "vertical_drop_m", "speed_mean_ms", "edwards_trimp"}
+    # ------------------------------------------------------------
+    # Mode B (demo/minimal): has z_mech + z_internal already
+    # Columns you told me:
+    # run_id,duration_s,vertical_drop_m,z_mech,z_internal,z_trimp,combined_load_v2
+    # ------------------------------------------------------------
+    if ("z_mech" in df.columns) and ("z_internal" in df.columns):
+        df["z_mech"] = pd.to_numeric(df["z_mech"], errors="coerce")
+        df["z_internal"] = pd.to_numeric(df["z_internal"], errors="coerce")
+
+        df["combined_load_v2"] = alpha * df["z_internal"] + (1.0 - alpha) * df["z_mech"]
+
+        # For alpha-sweep "balance internal/external":
+        # corr(combined, z_internal) and corr(combined, z_mech)
+        corr_comb_internal = corr_safe(df["combined_load_v2"], df["z_internal"])
+        corr_comb_mech = corr_safe(df["combined_load_v2"], df["z_mech"])
+
+        ensure_parent(outp)
+        ensure_parent(rep)
+        df.to_csv(outp, index=False)
+
+        report = {
+            "input": str(inp),
+            "output_csv": str(outp),
+            "output_report": str(rep),
+            "n_runs": int(len(df)),
+            "alpha": alpha,
+            "mode": "demo_z_blend",
+            "internal_used_for_combined": "z_internal",
+            "external_used_for_combined": "z_mech",
+            "corr_comb_internal": corr_comb_internal,
+            "corr_comb_mech": corr_comb_mech,
+            "summary": {
+                "combined_load_v2_mean": float(
+                    pd.to_numeric(df["combined_load_v2"], errors="coerce").mean(skipna=True)
+                ),
+            },
+        }
+        rep.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        print(f"[OK] Saved: {outp.resolve()}")
+        print(f"[OK] Report: {rep.resolve()}")
+        print("[INFO] internal_used_for_combined = z_internal")
+        print(f"[INFO] corr(combined, z_internal) = {corr_comb_internal}")
+        print(f"[INFO] corr(combined, z_mech) = {corr_comb_mech}")
+
+        # small preview
+        cols = [
+            c for c in ["run_id", "z_internal", "z_mech", "combined_load_v2"] if c in df.columns
+        ]
+        print("\n=== Preview (first 5) ===")
+        print(df[cols].head().to_string(index=False))
+        return
+
+    # ------------------------------------------------------------
+    # Mode A (full pipeline): fallback (your original expected columns)
+    # Keep this strict so full pipeline remains honest.
+    # ------------------------------------------------------------
+    required = {"run_id", "duration_s", "vertical_drop_m"}
     missing = required - set(df.columns)
     if missing:
-        raise ValueError(f"Missing columns in {inp}: {sorted(missing)}")
+        raise ValueError(f"Missing required columns in {inp}: {sorted(missing)}")
 
-    # ---- Mechanical proxies (external load proxies) ----
-    df["mech_drop"] = pd.to_numeric(df["vertical_drop_m"], errors="coerce")
-    df["mech_intensity"] = df["mech_drop"] * pd.to_numeric(df["speed_mean_ms"], errors="coerce")
-    df["mech_volume"] = df["mech_drop"] * pd.to_numeric(df["duration_s"], errors="coerce")
-
-    # ---- Internal load: keep Edwards TRIMP (discrete) + prefer continuous if present ----
-    internal_cont_name = None
-    z_internal_cont = None
-
-    if "impulse_hr_s" in df.columns:
-        internal_cont_name = "impulse_hr_s"
-        df["internal_cont_name"] = internal_cont_name
-        df["internal_cont"] = pd.to_numeric(df["impulse_hr_s"], errors="coerce")
-        z_internal_cont = zscore(df["internal_cont"])
-    elif "impulse_hr_above_rest_bpms" in df.columns:
-        internal_cont_name = "impulse_hr_above_rest_bpms"
-        df["internal_cont_name"] = internal_cont_name
-        df["internal_cont"] = pd.to_numeric(df["impulse_hr_above_rest_bpms"], errors="coerce")
-        z_internal_cont = zscore(df["internal_cont"])
-    else:
-        df["internal_cont_name"] = ""
-        df["internal_cont"] = np.nan
-
-    z_trimp = zscore(df["edwards_trimp"])
-    z_mech = zscore(df["mech_intensity"])
-
-    # expose z versions explicitly
-    df["z_trimp"] = z_trimp
-    df["z_mech"] = z_mech
-
-    # choose internal: continuous if available else TRIMP
-    if z_internal_cont is not None and z_internal_cont.notna().any():
-        df["z_internal"] = z_internal_cont
-        internal_used = internal_cont_name
-        df["z_internal_cont"] = z_internal_cont
-    else:
-        df["z_internal"] = z_trimp
-        internal_used = "edwards_trimp"
-        df["z_internal_cont"] = np.nan
-
-    # ---- Final combined load ----
-    df["combined_load_v2"] = alpha * df["z_internal"] + (1.0 - alpha) * df["z_mech"]
-
-    # Save CSV
-    df.to_csv(outp, index=False)
-
-    # Simple correlations (diagnostics)
-    corr_tm = float(df[["edwards_trimp", "mech_intensity"]].corr().iloc[0, 1])
-    corr_td = float(df[["edwards_trimp", "mech_drop"]].corr().iloc[0, 1])
-
-    report = {
-        "input": str(inp),
-        "output_csv": str(outp),
-        "output_report": str(rep),
-        "n_runs": int(len(df)),
-        "alpha": alpha,
-        "internal_used_for_combined": internal_used,
-        "corr_trimp_mech_intensity": corr_tm,
-        "corr_trimp_drop": corr_td,
-        "summary": {
-            "trimp_total": float(pd.to_numeric(df["edwards_trimp"], errors="coerce").sum(skipna=True)),
-            "vertical_drop_total_m": float(pd.to_numeric(df["mech_drop"], errors="coerce").sum(skipna=True)),
-            "combined_load_v2_mean": float(pd.to_numeric(df["combined_load_v2"], errors="coerce").mean(skipna=True)),
-        },
-    }
-    rep.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    print(f"[OK] Saved: {outp.resolve()}")
-    print(f"[OK] Report: {rep.resolve()}")
-    print(f"[INFO] internal_used_for_combined = {internal_used}")
-    print(f"[INFO] corr(TRIMP, mech_intensity) = {corr_tm}")
-    print(f"[INFO] corr(TRIMP, drop) = {corr_td}")
-
-    # Preview
-    preview_cols = ["run_id", "edwards_trimp", "mech_intensity", "combined_load_v2"]
-    preview_cols = [c for c in preview_cols if c in df.columns]
-    print("\n=== Preview (run_id, edwards_trimp, mech_intensity, combined_load_v2) ===")
-    print(df[preview_cols].head().to_string(index=False))
+    # If you want, you can extend here to recompute mech/internal proxies from raw columns.
+    # For now, make it explicit to avoid silent wrong results.
+    raise ValueError(
+        "Input CSV does not contain (z_mech, z_internal), and full-pipeline recomputation "
+        "is not implemented in this version. Provide z_mech & z_internal, or extend Mode A."
+    )
 
 
 if __name__ == "__main__":

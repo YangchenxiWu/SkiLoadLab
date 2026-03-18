@@ -1,0 +1,52 @@
+[project]
+name = "SkiLoadLab"
+version = "0.1.0"
+description = "Training load modeling for downhill skiing (Polar HR + GPX + DEM)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "YangchenxiWu" }]
+dependencies = [
+  "numpy",
+  "pandas",
+  "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff",
+  "black",
+  "mypy",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["output", "data/raw", "data/processed", "data/external"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["skiloadlab"]
+combine-as-imports = true
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+mypy_path = ["src"]
+exclude = "(^output/|^data/raw/|^data/processed/|^data/external/)"

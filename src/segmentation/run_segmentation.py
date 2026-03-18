@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import argparse
 import json
@@ -91,7 +90,9 @@ def engineer_signals(
     out["is_gap"] = out["dt"] > float(dt_gap_s)
     gap_count = int(out["is_gap"].sum())
     if gap_count > 0:
-        print(f"[WARN] Found {gap_count} large time gaps (dt > {dt_gap_s}s). Runs will not bridge gaps.")
+        print(
+            f"[WARN] Found {gap_count} large time gaps (dt > {dt_gap_s}s). Runs will not bridge gaps."
+        )
 
     # horizontal step distance
     lat1 = out["lat"].shift(1)
@@ -181,26 +182,30 @@ def segment_runs(
             continue
 
         run_id += 1
-        x = df.iloc[s:e + 1]
+        x = df.iloc[s : e + 1]
 
         drop = float(x["elev_s"].iloc[0] - x["elev_s"].iloc[-1])
         drop = max(0.0, drop)
 
-        rows.append({
-            "run_id": f"run_{run_id:02d}",
-            "start_time": x["time"].iloc[0],
-            "end_time": x["time"].iloc[-1],
-            "duration_s": dur,
-            "vertical_drop_m": drop,
-            "speed_mean_ms": float(x["speed_ms"].mean()),
-            "speed_p95_ms": float(x["speed_ms"].quantile(0.95)),
-            "vvert_mean_ms": float(x["vvert_ms"].mean()),
-        })
+        rows.append(
+            {
+                "run_id": f"run_{run_id:02d}",
+                "start_time": x["time"].iloc[0],
+                "end_time": x["time"].iloc[-1],
+                "duration_s": dur,
+                "vertical_drop_m": drop,
+                "speed_mean_ms": float(x["speed_ms"].mean()),
+                "speed_p95_ms": float(x["speed_ms"].quantile(0.95)),
+                "vvert_mean_ms": float(x["vvert_ms"].mean()),
+            }
+        )
 
     return pd.DataFrame(rows)
 
 
-def build_metadata(df_raw, df_sig, runs, args_dict, inp_path: str, out_runs: str, out_meta: str) -> dict:
+def build_metadata(
+    df_raw, df_sig, runs, args_dict, inp_path: str, out_runs: str, out_meta: str
+) -> dict:
     dt = df_raw["dt"]
     md = {
         "input": inp_path,
@@ -226,7 +231,9 @@ def build_metadata(df_raw, df_sig, runs, args_dict, inp_path: str, out_runs: str
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Segment downhill ski runs from track_elevation.csv (v2 with QC).")
+    ap = argparse.ArgumentParser(
+        description="Segment downhill ski runs from track_elevation.csv (v2 with QC)."
+    )
     ap.add_argument("--in", dest="inp", default="data/processed/track_elevation.csv")
     ap.add_argument("--out", default="data/processed/runs.csv")
     ap.add_argument("--meta", default="output/run_segmentation_report.json")
@@ -237,10 +244,19 @@ def main():
     ap.add_argument("--speed_clip", type=float, default=50.0)
 
     # segmentation thresholds
-    ap.add_argument("--vvert", type=float, default=-0.4, help="Downhill vertical speed threshold (m/s, negative).")
-    ap.add_argument("--speed", type=float, default=2.0, help="Min speed threshold to consider skiing (m/s).")
+    ap.add_argument(
+        "--vvert",
+        type=float,
+        default=-0.4,
+        help="Downhill vertical speed threshold (m/s, negative).",
+    )
+    ap.add_argument(
+        "--speed", type=float, default=2.0, help="Min speed threshold to consider skiing (m/s)."
+    )
     ap.add_argument("--min_run", type=float, default=40.0, help="Minimum run duration (s).")
-    ap.add_argument("--merge_gap", type=float, default=20.0, help="Merge gaps shorter than this (s).")
+    ap.add_argument(
+        "--merge_gap", type=float, default=20.0, help="Merge gaps shorter than this (s)."
+    )
 
     args = ap.parse_args()
 

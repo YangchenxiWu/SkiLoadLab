@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 
 def parse_gpx(gpx_file):
@@ -18,11 +19,7 @@ def parse_gpx(gpx_file):
         time_elem = trkpt.find("default:time", namespace)
         time = time_elem.text if time_elem is not None else None
 
-        points.append({
-            "time": time,
-            "lat": lat,
-            "lon": lon
-        })
+        points.append({"time": time, "lat": lat, "lon": lon})
 
     return pd.DataFrame(points)
 

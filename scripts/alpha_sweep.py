@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import argparse
 import subprocess
@@ -10,7 +9,9 @@ import numpy as np
 import pandas as pd
 
 
-def run_combined_load(alpha: float, inp: Path, out_csv: Path, rep_json: Path) -> subprocess.CompletedProcess:
+def run_combined_load(
+    alpha: float, inp: Path, out_csv: Path, rep_json: Path
+) -> subprocess.CompletedProcess:
     cmd = [
         sys.executable,
         "src/model/combined_load.py",
@@ -39,10 +40,16 @@ def main():
     ap = argparse.ArgumentParser(
         description="Sweep alpha for combined_load_v2 and choose best alpha by balanced internal/external correlation."
     )
-    ap.add_argument("--in", dest="inp", default="data/processed/runs_with_hr.csv", help="Input runs_with_hr.csv")
+    ap.add_argument(
+        "--in", dest="inp", default="data/processed/runs_with_hr.csv", help="Input runs_with_hr.csv"
+    )
     ap.add_argument("--alpha_step", type=float, default=0.05, help="Alpha step (default 0.05)")
-    ap.add_argument("--out_dir", default="data/processed/alpha_sweep", help="Directory to store per-alpha CSVs")
-    ap.add_argument("--report_dir", default="output/alpha_sweep", help="Directory to store per-alpha reports")
+    ap.add_argument(
+        "--out_dir", default="data/processed/alpha_sweep", help="Directory to store per-alpha CSVs"
+    )
+    ap.add_argument(
+        "--report_dir", default="output/alpha_sweep", help="Directory to store per-alpha reports"
+    )
     ap.add_argument("--summary", default="output/alpha_sweep_summary.csv", help="Summary CSV path")
     ap.add_argument(
         "--stop_on_fail",
@@ -158,11 +165,15 @@ def main():
     ok_df = ok_df[np.isfinite(ok_df["score_balanced"])].copy()
 
     if len(ok_df) == 0:
-        print("[WARN] No valid score_balanced rows. Check that combined_load.py outputs z_internal/z_mech/combined_load_v2.")
+        print(
+            "[WARN] No valid score_balanced rows. Check that combined_load.py outputs z_internal/z_mech/combined_load_v2."
+        )
         return
 
     best = ok_df.loc[ok_df["score_balanced"].idxmax()]
-    print("\n[BEST] by balanced score = max min(|corr(combined,z_internal)|, |corr(combined,z_mech)|)")
+    print(
+        "\n[BEST] by balanced score = max min(|corr(combined,z_internal)|, |corr(combined,z_mech)|)"
+    )
     print(
         best[
             [

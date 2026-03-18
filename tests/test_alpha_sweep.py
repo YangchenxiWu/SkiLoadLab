@@ -1,9 +1,11 @@
 import subprocess
 import sys
 from pathlib import Path
+
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[1]
+
 
 def test_alpha_sweep_runs(tmp_path: Path):
     inp = REPO / "data/example/runs_with_hr_example.csv"
@@ -15,11 +17,16 @@ def test_alpha_sweep_runs(tmp_path: Path):
         [
             sys.executable,
             str(REPO / "scripts/alpha_sweep.py"),
-            "--in", str(inp),
-            "--alpha_step", "0.5",
-            "--out_dir", str(out_dir),
-            "--report_dir", str(rep_dir),
-            "--summary", str(summary),
+            "--in",
+            str(inp),
+            "--alpha_step",
+            "0.5",
+            "--out_dir",
+            str(out_dir),
+            "--report_dir",
+            str(rep_dir),
+            "--summary",
+            str(summary),
         ],
         capture_output=True,
         text=True,

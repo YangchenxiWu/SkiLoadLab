@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import argparse
 from pathlib import Path
@@ -7,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import rasterio
-
 
 NODATA_SENTINELS = {-32768.0, -9999.0, -3.4028235e38}
 

@@ -21,3 +21,4 @@ __pycache__/
 
 src/model/*.bak_*
 src/model/*_bak_*
+docs/figures/*.pdf
