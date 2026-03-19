@@ -23,6 +23,7 @@ SkiLoadLab addresses this gap by providing a scriptable, testable research pipel
 ### Pipeline
 1. **GPX parsing**: read track points and timestamps.
 2. **DEM elevation sampling**: sample elevation values from a GeoTIFF DEM at track coordinates.
+   Elevation sampling is implemented via rasterio (v1.5.0) on Copernicus DEM GeoTIFF tiles.
 3. **Run segmentation**: partition a continuous session into downhill runs vs lift/transitions using explicit heuristics.
 4. **HR ↔ GPX time alignment**: align Polar HR (relative-time stream) to the GPX timeline, handling practical timebase differences and small drift.
 5. **Internal load estimation**: compute heart-rate–based metrics (e.g., Edwards TRIMP and/or continuous HR impulse variants).
@@ -61,3 +62,21 @@ Future versions will explore incorporating subjective effort signals (e.g., RPE)
 - Edwards TRIMP / internal load background
 - Conceptual papers on internal vs external load
 - If you cite a specific DEM dataset/source, include its citation
+
+## References
+
+Impellizzeri, F. M., Marcora, S. M., & Coutts, A. J. (2019). Internal and external training load: 15 years on. *International Journal of Sports Physiology and Performance*, 14(2), 270–273. https://doi.org/10.1123/ijspp.2018-0935
+
+Halperin, I., Vigotsky, A. D., Foster, C., & Pyne, D. B. (2018). Strengthening the practice of exercise and sport-science research. *International Journal of Sports Physiology and Performance*, 13(3), 384–388. https://doi.org/10.1123/ijspp.2017-0322
+
+Gilgien, M., Spörri, J., Chardonnens, J., Kröll, J., & Müller, E. (2013). Determination of external load in alpine skiing using GNSS. *European Journal of Sport Science*, 13(6), 582–592. https://doi.org/10.1080/17461391.2013.765934
+
+Supej, M., & Holmberg, H.-C. (2019). Recent approaches to GNSS measurements in alpine skiing: Accuracy requirements and challenges for research and applied science. *Frontiers in Physiology*, 10, 1188. https://doi.org/10.3389/fphys.2019.01188
+
+Harris, C. R., Millman, K. J., van der Walt, S. J., et al. (2020). Array programming with NumPy. *Nature*, 585, 357–362. https://doi.org/10.1038/s41586-020-2649-2
+
+McKinney, W. (2010). Data structures for statistical computing in Python. In *Proceedings of the 9th Python in Science Conference (SciPy 2010)* (pp. 56–61). https://doi.org/10.25080/Majora-92bf1922-00a
+
+Rasterio Developers. (2026). *rasterio: Fast and direct raster I/O for use with NumPy* (Version 1.5.0) [Computer software]. https://rasterio.readthedocs.io/
+
+Edwards, S. (1993). *The Heart Rate Monitor Book*. Polar Electro Oy.
