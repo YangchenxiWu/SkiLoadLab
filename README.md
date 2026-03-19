@@ -1,5 +1,7 @@
 # SkiLoadLab — Reproducible Training Load Modeling for Downhill Skiing (Polar HR + GPX + DEM)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19108569.svg)](https://doi.org/10.5281/zenodo.19108569)
+
 SkiLoadLab is a **research-oriented, reproducible pipeline** for estimating downhill-skiing training load by fusing:
 
 - **Internal load** (heart-rate–based impulse / TRIMP variants)
