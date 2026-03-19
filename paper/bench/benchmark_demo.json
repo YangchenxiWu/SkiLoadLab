@@ -1,0 +1,17 @@
+{
+  "timestamp_utc": "2026-03-19T11:45:18Z",
+  "median_s": 1.276791,
+  "times_s": [
+    1.274733,
+    1.276791,
+    1.294501
+  ],
+  "python": "Python 3.13.1",
+  "platform": "Darwin arm64 arm",
+  "os": "ProductName:\t\tmacOS;ProductVersion:\t\t26.3.1;BuildVersion:\t\t25D2128",
+  "git_commit": "5503731",
+  "dirty_files": 2,
+  "runs_csv": "data/example/runs_final_example.csv",
+  "alpha": 0.5,
+  "repeats": 3
+}
