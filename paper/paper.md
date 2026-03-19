@@ -44,7 +44,7 @@ SkiLoadLab addresses this gap by providing a scriptable, testable research pipel
 - **Continuous integration (CI)** via GitHub Actions runs the test suite on each push, reducing regressions and improving reviewer confidence.
 
 ## Impact
-SkiLoadLab reduces friction in research-grade training-load modeling by replacing manual, error-prone spreadsheet processing with a single command-line workflow that deterministically reproduces derived variables and figures. On an Apple Silicon laptop, the demo end-to-end pipeline (combined-load computation plus figure generation) completes in approximately **1–2 seconds** median wall-clock time over 3 repeats (see `paper/bench/benchmark_demo.md`), supporting rapid iteration on methodological choices (e.g., segmentation parameters or alpha selection) while preserving reproducibility.
+SkiLoadLab reduces friction in research-grade training-load modeling by replacing manual, error-prone spreadsheet processing with a single command-line workflow that deterministically reproduces derived variables and figures. On an Apple Silicon laptop (macOS; Python 3.x), the demo end-to-end pipeline (combined-load computation plus figure generation) completed in a **median of 1.2768 s** over **3 repeats** (see `paper/bench/benchmark_demo.md`). Runtime will vary with hardware, file I/O, and full-mode inputs (e.g., DEM sampling on long GPX tracks), but the benchmark demonstrates that the core demo workflow is effectively instantaneous for iterative method development.
 
 ## Availability
 - Source code (GitHub): https://github.com/YangchenxiWu/SkiLoadLab  
