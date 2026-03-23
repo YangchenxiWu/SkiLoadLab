@@ -12,19 +12,20 @@ import pandas as pd
 def run_combined_load(
     alpha: float, inp: Path, out_csv: Path, rep_json: Path
 ) -> subprocess.CompletedProcess:
+    repo_root = Path(__file__).resolve().parents[1]
     cmd = [
         sys.executable,
-        "src/model/combined_load.py",
+        str(repo_root / "src/model/combined_load.py"),
         "--in",
-        str(inp),
+        str(inp.resolve()),
         "--out",
-        str(out_csv),
+        str(out_csv.resolve()),
         "--report",
-        str(rep_json),
+        str(rep_json.resolve()),
         "--alpha",
         str(alpha),
     ]
-    return subprocess.run(cmd, capture_output=True, text=True)
+    return subprocess.run(cmd, capture_output=True, text=True, cwd=repo_root)
 
 
 def safe_corr(a: pd.Series, b: pd.Series) -> float:
@@ -41,7 +42,7 @@ def main():
         description="Sweep alpha for combined_load_v2 and choose best alpha by balanced internal/external correlation."
     )
     ap.add_argument(
-        "--in", dest="inp", default="data/processed/runs_with_hr.csv", help="Input runs_with_hr.csv"
+        "--in", dest="inp", default="data/example/runs_final_example.csv", help="Input run-level CSV for alpha sweep"
     )
     ap.add_argument("--alpha_step", type=float, default=0.05, help="Alpha step (default 0.05)")
     ap.add_argument(
