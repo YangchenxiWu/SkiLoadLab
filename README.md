@@ -114,6 +114,9 @@ Key generated figures include:
 
 - `docs/figures/fig03_internal_vs_external_scatter.png`
 - `docs/figures/fig06_alpha_sweep.png`
+![Alpha sweep diagnostics](docs/figures/fig06_alpha_sweep.png)
+
+*Alpha-sweep diagnostics showing the trade-off between internal alignment, external alignment, and the balanced score across* `alpha in [0,1]`.
 
 ## Reproducibility note
 
