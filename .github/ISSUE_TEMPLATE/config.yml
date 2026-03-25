@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: SkiLoadLab documentation
+    url: https://github.com/YangchenxiWu/SkiLoadLab/blob/main/docs/reproducibility.md
+    about: Please read the public reproducibility guide before opening a reproducibility issue.
+  - name: Methods note
+    url: https://github.com/YangchenxiWu/SkiLoadLab/blob/main/docs/METHODS.md
+    about: Please read the methods documentation before opening a feature or methods-related issue.
+
