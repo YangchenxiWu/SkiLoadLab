@@ -29,6 +29,8 @@ The full workflow parses GPX tracks into structured movement segments and sample
 
 The public demo workflow does not require raw DEM sampling, but the broader pipeline may rely on geospatial dependencies such as `rasterio` for this part of the workflow.
 
+Elevation extraction is implemented via nearest-neighbor point sampling using `rasterio.sample`. Given the 30 m spatial resolution of the Copernicus DEM and the typical skier displacement at 1 Hz sampling frequency, this approach provides efficient point-wise elevation lookup while avoiding artificial smoothing of terrain features (e.g., sharp ridges or abrupt drops) that may arise under higher-order interpolation schemes. This choice prioritizes reproducibility and implementation transparency over sub-grid terrain smoothing.
+
 ## Run segmentation
 
 A continuous skiing session is partitioned into run-level units representing downhill runs versus lift/transition phases. In the current repository, run segmentation is heuristic and rule-based. This is sufficient for reproducible method development, but thresholds and logic may require adaptation across terrain, snow conditions, skier profile, and recording conditions.
@@ -48,6 +50,8 @@ External load is represented using terrain- and movement-derived variables, incl
 ## Normalization
 
 SkiLoadLab combines internal and external load only after expressing them on comparable standardized scales. The current implementation uses z-score normalization for the internal and external components before alpha-weighted fusion.
+
+Standardization is performed as `z = (x - μ) / σ`, where `μ` and `σ` are the mean and standard deviation of the respective component across the analyzed runs in the current input table. This places the internal and external components on a common dimensionless scale and ensures that the fusion weight `alpha` operates on variance-aligned inputs.
 
 ## Combined load model
 
@@ -78,6 +82,8 @@ The alpha-sweep summary reports:
 - a balanced score used to identify an interpretable compromise alpha
 
 The current balanced criterion emphasizes symmetry between internal and external alignment rather than maximizing only one side. In practical terms, the workflow prefers an alpha that maintains strong correspondence with both components instead of overfitting to either the physiological or mechanical signal alone.
+
+The optimal balance point is defined as the `alpha` value that maximizes the minimum correlation between the combined index and its two constituent components, i.e. `max(min(r_int, r_ext))`. This heuristic favors an interpretable compromise solution in which neither the physiological nor the mechanical component is effectively ignored.
 
 ## Outputs
 
