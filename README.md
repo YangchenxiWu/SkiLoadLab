@@ -46,30 +46,41 @@ pip install -r requirements.txt
 
 ## Quickstart
 
-### 1. Run the demo combined-load workflow
+### 1. Install the package in editable mode
 
 ```bash
-python3 src/model/combined_load.py \
+python3 -m pip install -e .
+```
+
+For development tools and optional geospatial dependencies, use:
+```bash
+python3 -m pip install -e '.[dev,geo]'
+```
+
+### 2. Run the demo combined-load workflow
+
+```bash
+skiloadlab-combine \
   --in data/example/runs_final_example.csv \
   --out output/demo_runs_combined.csv \
   --report output/demo_combined_report.json \
   --alpha 0.5
 ```
 
-### 2. Run alpha-sweep diagnostics
+### 3. Run alpha-sweep diagnostics
 
 ```bash
-python3 scripts/alpha_sweep.py
+skiloadlab-alpha-sweep
 ```
 
 This step generates:
 - `output/alpha_sweep_summary.csv`
 - per-alpha CSV/report files in `output/alpha_sweep/`
 
-### 3. Generate publication-style figures
+### 4. Generate publication-style figures
 
 ```bash
-python3 scripts/make_figures.py \
+skiloadlab-make-figures \
   --runs data/example/runs_final_example.csv \
   --alpha_summary output/alpha_sweep_summary.csv \
   --out docs/figures
@@ -79,13 +90,14 @@ This step generates figures such as:
 - `docs/figures/fig03_internal_vs_external_scatter.png`
 - `docs/figures/fig06_alpha_sweep.png`
 
-### 4. Run tests
+### 5. Run tests
 
 ```bash
 pytest -q
 ```
 
 For a step-by-step demo reproduction guide, see [`docs/reproducibility.md`](docs/reproducibility.md).
+
 
 ## Core model
 
