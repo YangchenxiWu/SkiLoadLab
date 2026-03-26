@@ -144,6 +144,12 @@ See also:
 ## License
 MIT License
 
+## Platform support
 
+The public demo workflow has been tested on:
+- macOS (Apple Silicon)
+- Windows (Python + virtual environment)
+
+All core steps (combined load, alpha sweep, figure generation, and test suite) run successfully with the example dataset.
 
 

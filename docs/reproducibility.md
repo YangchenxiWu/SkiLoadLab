@@ -146,6 +146,16 @@ If you use SkiLoadLab in research, cite the Zenodo archive:
 - Concept DOI: https://doi.org/10.5281/zenodo.19108568
 - Version DOI (v0.1.2): https://doi.org/10.5281/zenodo.19110471
 
+## Cross-platform validation
 
+The public demo workflow has been successfully tested on Windows using a Python virtual environment.
+
+The following steps were verified:
+- combined load computation (`combined_load.py`)
+- alpha sweep diagnostics (`alpha_sweep.py`)
+- figure generation (`make_figures.py`)
+- test suite (`pytest -q`)
+
+All steps completed without errors using the example dataset.
 
 
