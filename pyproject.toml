@@ -1,11 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "SkiLoadLab"
-version = "0.1.0"
+version = "0.1.2"
 description = "Training load modeling for downhill skiing (Polar HR + GPX + DEM)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "YangchenxiWu" }]
+authors = [{ name = "Yangchenxi Wu" }]
 dependencies = [
   "numpy",
   "pandas",
@@ -13,6 +17,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+geo = [
+  "rasterio",
+]
 dev = [
   "pytest",
   "ruff",
@@ -20,10 +27,18 @@ dev = [
   "mypy",
 ]
 
+[project.scripts]
+skiloadlab-combine = "skiloadlab.cli.combine:main"
+skiloadlab-alpha-sweep = "skiloadlab.cli.alpha_sweep:main"
+skiloadlab-make-figures = "skiloadlab.cli.make_figures:main"
+
+[tool.setuptools.packages.find]
+include = ["skiloadlab*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 
 [tool.black]
 line-length = 100
@@ -48,5 +63,5 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
-mypy_path = ["src"]
+mypy_path = ["src", "."]
 exclude = "(^output/|^data/raw/|^data/processed/|^data/external/)"
