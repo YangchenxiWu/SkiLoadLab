@@ -17,15 +17,15 @@ The public repository is centered on a demo-compatible run-level workflow for tr
 
 ## Repository structure
 
-- `skiloadlab/` - installable package containing the core implementation and CLI entry points
-- `src/` - legacy-compatible shim entry points and earlier module layout
-- `scripts/` - legacy-compatible runnable shims for workflow compatibility
+- `skiloadlab/` - primary installable package containing the maintained implementation and CLI entry points
+- `src/` - backward-compatible shim entry points retained for earlier script-based usage
+- `scripts/` - backward-compatible workflow shims retained for earlier script-based usage
 - `data/` - demo/example inputs
 - `docs/` - figures and methods-facing notes
 - `paper/` - manuscript/preprint materials
 - `tests/` - test suite
 
-The installable package lives in `skiloadlab/`. The `src/` and `scripts/` paths are retained as legacy-compatible entry points, while the public workflow is documented through the package CLI.
+The maintained implementation lives in `skiloadlab/`. The `src/` and `scripts/` paths are retained only as backward-compatible shims so that earlier script-based entry points continue to work, while the public workflow is documented through the package CLI.
 
 
 ## Installation
