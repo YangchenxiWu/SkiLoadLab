@@ -1,26 +1,32 @@
-# SkiLoadLab: Reproducible Training Load Modeling for Downhill Skiing (Polar HR + GPX + DEM)
+# SkiLoadLab: Reproducible Training Load Modeling for Downhill Skiing
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19108568.svg)](https://doi.org/10.5281/zenodo.19108568)
 
-SkiLoadLab is a research-oriented, reproducible pipeline for modeling downhill-skiing training load by combining internal load proxies (heart-rate-derived) and external load proxies (terrain- and speed-derived). The repository supports both a full workflow (GPX + Polar HR + DEM) and a demo-compatible run-level workflow designed for transparent method development, figure generation, and reproducible reporting.
+SkiLoadLab is a reproducible run-level load fusion toolkit for alpine/downhill skiing. It combines internal and external load proxies through an interpretable alpha-weighted framework, with optional upstream GPX/DEM/HR processing components for full-session workflows.
+
+The public repository is centered on a demo-compatible run-level workflow for transparent method development, reproducible reporting, and publication-style figure generation.
 
 ## Key features
 
-- Combined internal/external load modeling with interpretable alpha-weighted fusion
-- Demo-compatible run-level workflow for reproducibility without exposing raw GPS/HR exports
-- Alpha-sweep diagnostics for sensitivity analysis
-- Publication-style figure generation
-- Unit/integration tests with GitHub Actions CI
-- Zenodo-archived release for citation and versioning
+- Reproducible run-level internal/external load fusion with interpretable alpha weighting
+- Demo-compatible workflow for public reproducibility without exposing raw GPS/HR exports
+- Alpha-sweep diagnostics for sensitivity analysis and balance-point selection
+- Publication-style figure generation for reporting and manuscript preparation
+- Installable Python package with CLI entry points
+- GitHub Actions CI and Zenodo-archived releases for testing, citation, and versioning
 
 ## Repository structure
 
-- `src/` - core modeling modules
-- `scripts/` - runnable utilities (alpha sweep, figure generation, benchmarking)
+- `skiloadlab/` - installable package containing the core implementation and CLI entry points
+- `src/` - legacy-compatible shim entry points and earlier module layout
+- `scripts/` - legacy-compatible runnable shims for workflow compatibility
 - `data/` - demo/example inputs
 - `docs/` - figures and methods-facing notes
 - `paper/` - manuscript/preprint materials
 - `tests/` - test suite
+
+The installable package lives in `skiloadlab/`. The `src/` and `scripts/` paths are retained as legacy-compatible entry points, while the public workflow is documented through the package CLI.
+
 
 ## Installation
 
@@ -41,7 +47,13 @@ source .venv/bin/activate
 ### 3. Install dependencies
 
 ```bash
-pip install -r requirements.txt
+python3 -m pip install -e .
+```
+
+For development tools and optional geospatial dependencies, use:
+
+```bash
+python3 -m pip install -e '.[dev,geo]'
 ```
 
 ## Quickstart
@@ -113,6 +125,8 @@ where:
 
 The alpha-sweep workflow evaluates `alpha` over `[0, 1]` to quantify the trade-off between internal and external alignment rather than assuming a single fixed default.
 
+The public workflow is exposed through the installable SkiLoadLab package and its command-line interface.
+
 ## Outputs
 
 Typical outputs include:
@@ -128,11 +142,13 @@ Key generated figures include:
 - `docs/figures/fig06_alpha_sweep.png`
 ![Alpha sweep diagnostics](docs/figures/fig06_alpha_sweep.png)
 
-*Alpha-sweep diagnostics showing the trade-off between internal alignment, external alignment, and the balanced score across* `alpha in [0,1]`.
+*Alpha-sweep diagnostics showing the trade-off between internal alignment, external alignment, and the balanced score across* `alpha` *values from 0 to 1.*
 
 ## Reproducibility note
 
 The repository is designed around a demo-compatible run-level CSV (`data/example/runs_final_example.csv`) so that the core combined-load workflow, alpha-sweep diagnostics, and figure generation can be reproduced without access to raw geolocation or identifiable physiological timestamps.
+
+The recommended public entry points are the package CLI commands documented above.
 
 ## Current assumptions and limitations
 
@@ -143,7 +159,7 @@ The repository is designed around a demo-compatible run-level CSV (`data/example
 
 ## Citation
 
-If you use SkiLoadLab in research, please cite the Zenodo archive:
+If you use SkiLoadLab in research, please cite the Zenodo archive. Please prefer the versioned DOI when citing a specific archived software release.
 
 - Concept DOI: https://doi.org/10.5281/zenodo.19108568
 - Version DOI (v0.1.2): https://doi.org/10.5281/zenodo.19110471
