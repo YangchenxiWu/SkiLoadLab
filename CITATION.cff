@@ -1,8 +1,20 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it."
-title: "SkiLoadLab: Training Load Modeling for Downhill Skiing (Polar + GPX + DEM)"
+message: "If you use this software, please cite it using the metadata below."
+type: software
+title: "SkiLoadLab"
 authors:
-  - family-names: Wu
-    given-names: Yangchenxi
+  - family-names: "Wu"
+    given-names: "Yangchenxi"
+version: "0.1.2"
+date-released: 2026-03-19
+doi: 10.5281/zenodo.19110471
 repository-code: "https://github.com/YangchenxiWu/SkiLoadLab"
-license: MIT
+license: "MIT"
+abstract: "SkiLoadLab is a reproducible run-level load fusion toolkit for alpine/downhill skiing. It combines internal and external load proxies through an interpretable alpha-weighted framework, with optional upstream GPX/DEM/HR processing components for full-session workflows."
+keywords:
+  - alpine skiing
+  - downhill skiing
+  - training load
+  - reproducibility
+  - load fusion
+  - sports analytics
