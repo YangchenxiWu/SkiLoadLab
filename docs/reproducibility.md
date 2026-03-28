@@ -62,7 +62,7 @@ pip install -r requirements.txt
 ### 4. Run the demo combined-load workflow
 
 ```bash
-python3 src/model/combined_load.py \
+skiloadlab-combine \
   --in data/example/runs_final_example.csv \
   --out output/demo_runs_combined.csv \
   --report output/demo_combined_report.json \
@@ -82,7 +82,7 @@ This step should generate:
 ### 5. Run alpha-sweep diagnostics
 
 ```bash
-python3 scripts/alpha_sweep.py
+skiloadlab-alpha-sweep
 ```
 
 #### Expected outputs
@@ -98,7 +98,7 @@ You should see progress logs for 21 iterations (from 0.00 to 1.00), concluding w
 ### 6. Generate figures
 
 ```bash
-python3 scripts/make_figures.py \
+skiloadlab-make-figures \
   --runs data/example/runs_final_example.csv \
   --alpha_summary output/alpha_sweep_summary.csv \
   --out docs/figures
