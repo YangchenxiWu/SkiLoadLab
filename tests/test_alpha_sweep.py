@@ -36,7 +36,7 @@ def test_alpha_sweep_runs(tmp_path: Path):
     assert summary.exists()
 
     df = pd.read_csv(summary)
-    # 0.0, 0.5, 1.0 => 至少 3 行
+    # Use at least three alpha rows (e.g., 0.0, 0.5, 1.0)
     assert len(df) >= 3
     for col in ["score_balanced", "corr_comb_internal", "corr_comb_mech"]:
         assert col in df.columns
