@@ -6,10 +6,8 @@ on:
 
 jobs:
   test:
+    name: Unit tests (Ubuntu, Python 3.11)
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
 
     steps:
       - uses: actions/checkout@v4
@@ -17,13 +15,46 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install package and test dependencies
         run: |
-          python -m pip install -e '.[dev]'
           python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
 
       - name: Run tests
         run: |
           pytest -q
+
+  smoke:
+    name: Smoke test (${{ matrix.os }}, Python 3.11)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Run combined-load CLI
+        run: |
+          skiloadlab-combine --in data/example/runs_final_example.csv --out output/demo_runs_combined.csv --report output/demo_combined_report.json --alpha 0.5
+
+      - name: Run alpha-sweep CLI
+        run: |
+          skiloadlab-alpha-sweep
+
+      - name: Run figure-generation CLI
+        run: |
+          skiloadlab-make-figures --runs data/example/runs_final_example.csv --alpha_summary output/alpha_sweep_summary.csv --out docs/figures
