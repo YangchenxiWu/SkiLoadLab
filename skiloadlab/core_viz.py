@@ -20,9 +20,13 @@ Design goals:
 import argparse
 from pathlib import Path
 
-import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import pandas as pd
+
+# Use a non-interactive backend so plotting works in headless CI/sandbox environments.
+matplotlib.use("Agg", force=True)
+import matplotlib.pyplot as plt
 
 
 def ensure_dir(p: Path) -> None:

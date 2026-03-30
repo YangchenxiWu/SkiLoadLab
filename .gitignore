@@ -15,6 +15,16 @@ __pycache__/
 # ---- mac ----
 .DS_Store
 
+# ---- latex ----
+*.aux
+*.log
+*.out
+*.spl
+*.toc
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
 # ---- optional ----
 .venv/
 .env
