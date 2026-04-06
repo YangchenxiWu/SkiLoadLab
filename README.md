@@ -2,30 +2,50 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19108568.svg)](https://doi.org/10.5281/zenodo.19108568)
 
-SkiLoadLab is a reproducible run-level load fusion toolkit for alpine/downhill skiing. It combines internal and external load proxies through an interpretable alpha-weighted framework, with optional upstream GPX/DEM/HR processing components for full-session workflows.
+SkiLoadLab is an open-source Python toolkit for alpine/downhill skiing, centered on a packaged demo-compatible run-level workflow for reproducible combined-load computation, alpha-sweep diagnostics, and figure generation. Public reproducibility begins from an anonymized/demo-compatible run-level table rather than from raw GPS or heart-rate exports.
 
-The public repository is centered on a demo-compatible run-level workflow for transparent method development, reproducible reporting, and publication-style figure generation.
+The primary public reproducibility path is the installable package and formal CLI. Retained upstream utilities for GPX parsing, DEM sampling, and heuristic run segmentation remain available for extension and method development, but they are not the primary public reproducibility path and are not the core CI-validated workflow.
+
+## What SkiLoadLab publicly provides
+
+- installable Python package
+- CLI for `skiloadlab-combine`, `skiloadlab-alpha-sweep`, and `skiloadlab-make-figures`
+- demo-compatible run-level dataset
+- reproducible outputs: CSV, JSON, and figures
+- tests and CI for the public workflow
+
+## What is retained but not the primary public reproducibility path
+
+- GPX parsing
+- DEM sampling
+- heuristic run segmentation
 
 ## Key features
 
 - Reproducible run-level internal/external load fusion with interpretable alpha weighting
 - Demo-compatible workflow for public reproducibility without exposing raw GPS/HR exports
-- Alpha-sweep diagnostics for sensitivity analysis and balance-point selection
+- Alpha-sweep diagnostics for sensitivity analysis and balance-oriented reporting
 - Publication-style figure generation for reporting and manuscript preparation
 - Installable Python package with CLI entry points
 - GitHub Actions CI and Zenodo-archived releases for testing, citation, and versioning
 
 ## Repository structure
 
-- `skiloadlab/` - primary installable package containing the maintained implementation and CLI entry points
-- `src/` - backward-compatible shim entry points retained for earlier script-based usage
+- `skiloadlab/` - installable package containing the maintained public demo workflow and CLI entry points
+- `src/` - research and legacy utilities, including upstream GPX/DEM/segmentation scripts retained for broader method development
 - `scripts/` - backward-compatible workflow shims retained for earlier script-based usage
 - `data/` - demo/example inputs
 - `docs/` - figures and methods-facing notes
 - `paper/` - manuscript/preprint materials
 - `tests/` - test suite
 
-The maintained implementation lives in `skiloadlab/`. The `src/` and `scripts/` paths are retained only as backward-compatible shims so that earlier script-based entry points continue to work, while the public workflow is documented through the package CLI.
+The maintained public reproducibility path lives in `skiloadlab/`. The `scripts/` directory is retained for backward-compatible entry points, while `src/` also contains upstream research utilities that provide broader GPX/DEM/segmentation context but are not the primary public demo workflow documented below.
+
+## Scope of the public release
+
+- public reproducibility is centered on the packaged demo workflow
+- upstream utilities remain available for extension and method development
+- not all upstream steps are currently part of the validated public CI path
 
 
 ## Installation
@@ -69,7 +89,7 @@ For development tools and optional geospatial dependencies, use:
 python3 -m pip install -e '.[dev,geo]'
 ```
 
-### 2. Run the demo combined-load workflow
+### 2. Run combined-load computation
 
 ```bash
 skiloadlab-combine \
@@ -93,20 +113,16 @@ This step generates:
 
 ```bash
 skiloadlab-make-figures \
-  --runs data/example/runs_final_example.csv \
+  --runs output/demo_runs_combined.csv \
   --alpha_summary output/alpha_sweep_summary.csv \
-  --out docs/figures
+  --out_dir docs/figures
 ```
 
 This step generates figures such as:
 - `docs/figures/fig03_internal_vs_external_scatter.png`
 - `docs/figures/fig06_alpha_sweep.png`
 
-### 5. Run tests
-
-```bash
-pytest -q
-```
+In the maintained public workflow, figure generation consumes the combined run-level table produced by `skiloadlab-combine`, together with the alpha-sweep summary produced by `skiloadlab-alpha-sweep`.
 
 For a step-by-step demo reproduction guide, see [`docs/reproducibility.md`](docs/reproducibility.md).
 
@@ -124,6 +140,10 @@ where:
 - `alpha` controls the relative weighting of the internal component
 
 The alpha-sweep workflow evaluates `alpha` over `[0, 1]` to quantify the trade-off between internal and external alignment rather than assuming a single fixed default.
+
+The balance-oriented score is defined as the smaller of the two constituent correlations at a given alpha.
+
+In the public demo workflow, `z_internal` and `z_mech` are expected to already be present in the run-level input table. The package CLI therefore reproduces the fusion, alpha-sweep, and figure-generation stages of the workflow from a demo-compatible dataset, while retained upstream utilities remain available separately for research use.
 
 The public workflow is exposed through the installable SkiLoadLab package and its command-line interface.
 
@@ -150,12 +170,25 @@ The repository is designed around a demo-compatible run-level CSV (`data/example
 
 The recommended public entry points are the package CLI commands documented above.
 
-## Current assumptions and limitations
+## Current implementation constraints
 
-- The demo workflow operates on a run-level table rather than raw GPS/HR exports.
+- reproducibility begins from an anonymized/demo-compatible run-level table rather than raw GPS/HR exports
+- the maintained test path exercises the formal CLI: `skiloadlab-combine`, `skiloadlab-alpha-sweep`, and `skiloadlab-make-figures`
+- validation is software-facing: package installation, CLI execution, output generation, and automated tests
+- not all upstream utilities are part of the main validated public workflow
+- the retained upstream DEM sampling utility currently expects EPSG:4326 inputs
+- retained upstream geospatial utilities are useful for research extension, but are not the main public reproducibility path
 - Time alignment between Polar HR and GPX logs currently relies on pragmatic timestamp anchoring rather than fully automated drift correction.
-- Run segmentation in the full workflow is heuristic and may require adaptation across terrain, snow conditions, and skier profile.
+- Run segmentation in the broader research workflow is heuristic and may require adaptation across terrain, snow conditions, and skier profile.
 - The repository is intended for research transparency and reproducibility, not as a consumer-facing scoring product.
+
+## Validation
+
+Run the public test path with:
+
+```bash
+pytest -q
+```
 
 ## Citation
 
@@ -179,5 +212,3 @@ The public demo workflow has been tested on:
 - Windows (Python + virtual environment)
 
 All core steps (combined load, alpha sweep, figure generation, and test suite) run successfully with the example dataset.
-
-

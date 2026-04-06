@@ -15,4 +15,4 @@
 | alpha | numeric | – | Weight in [0,1] controlling fusion | Selected by balance heuristic |
 | corr(combined, z_internal) | numeric | – | Correlation between combined index and z_internal | Used for alpha sweep diagnostics |
 | corr(combined, z_mech) | numeric | – | Correlation between combined index and z_mech | Used for alpha sweep diagnostics |
-| score_balanced | numeric | – | min(|corr(combined,z_internal)|, |corr(combined,z_mech)|) | Alpha sweep objective |
+| score_balanced | numeric | – | min(corr(combined,z_internal), corr(combined,z_mech)) | Alpha sweep objective used in the public demo workflow |

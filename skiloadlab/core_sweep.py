@@ -25,7 +25,10 @@ def run_combined_load_safe(alpha: float, inp: Path, out_csv: Path, rep_json: Pat
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Sweep alpha for combined_load_v2 and choose best alpha by balanced internal/external correlation."
+        description=(
+            "Sweep alpha for combined_load_v2 to report internal/external alignment "
+            "diagnostics across the blend range."
+        )
     )
     ap.add_argument(
         "--in",
@@ -130,7 +133,7 @@ def main() -> None:
     valid = df[df["score_balanced"].notna()].copy()
     if len(valid) > 0:
         best = valid.sort_values("score_balanced", ascending=False).iloc[0]
-        print("[BEST] by balanced score = max min(corr_internal, corr_mech)")
+        print("[BEST] highest balanced score in this sweep = max min(corr_internal, corr_mech)")
         print(best[["alpha", "corr_comb_internal", "corr_comb_mech", "score_balanced"]])
         print("\n[TOP 5] by score_balanced")
         print(

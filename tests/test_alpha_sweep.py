@@ -1,22 +1,21 @@
 import subprocess
-import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[1]
 
 
 def test_alpha_sweep_runs(tmp_path: Path):
-    inp = REPO / "data/example/runs_with_hr_example.csv"
+    inp = REPO / "data/example/runs_final_example.csv"
     out_dir = tmp_path / "alpha_sweep"
     rep_dir = tmp_path / "reports"
     summary = tmp_path / "alpha_sweep_summary.csv"
 
     p = subprocess.run(
         [
-            sys.executable,
-            str(REPO / "scripts/alpha_sweep.py"),
+            "skiloadlab-alpha-sweep",
             "--in",
             str(inp),
             "--alpha_step",
@@ -40,3 +39,12 @@ def test_alpha_sweep_runs(tmp_path: Path):
     assert len(df) >= 3
     for col in ["score_balanced", "corr_comb_internal", "corr_comb_mech"]:
         assert col in df.columns
+
+    expected_alphas = [0.0, 0.5, 1.0]
+    np.testing.assert_allclose(df["alpha"], expected_alphas, rtol=0, atol=1e-12)
+
+    expected_score = df[["corr_comb_internal", "corr_comb_mech"]].min(axis=1)
+    np.testing.assert_allclose(df["score_balanced"], expected_score, rtol=0, atol=1e-12)
+
+    assert df["ok"].tolist() == [True, True, True]
+    assert df["internal_used"].tolist() == ["z_internal", "z_internal", "z_internal"]

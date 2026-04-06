@@ -24,7 +24,7 @@ SkiLoadLab implements a reproducible pipeline that fuses Polar heart-rate signal
 
 ### 2.2 DEM elevation sampling (Copernicus DEM GeoTIFF)
 - Elevation is sampled from a Copernicus DEM GeoTIFF at each GPX location.
-- Coordinates are reprojected as needed from geographic coordinates to the DEM CRS.
+- In the current repository utility, DEM sampling expects geographic coordinates with an EPSG:4326 DEM and does not yet expose a general reprojection step.
 - A per-point elevation time series is constructed to support descent-related proxies.
 
 ### 2.3 Polar HR stream ingestion
@@ -94,7 +94,7 @@ SkiLoadLab implements a reproducible pipeline that fuses Polar heart-rate signal
   - corr(combined, z_internal)
   - corr(combined, z_mech)
 - **Balanced score** (current implementation):
-  - `score_balanced = min(|corr(combined, z_internal)|, |corr(combined, z_mech)|)`
+  - `score_balanced = min(corr(combined, z_internal), corr(combined, z_mech))`
 - The “best” alpha maximizes `score_balanced`, prioritizing interpretability and balanced coupling to both components.
 
 (This is a heuristic selection rule, not a ground-truth fitted estimator.)

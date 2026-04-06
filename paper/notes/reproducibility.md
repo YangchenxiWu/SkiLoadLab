@@ -12,7 +12,7 @@ Demo CSV:
 
 ### 1) Compute combined load (demo table)
 ```bash
-python3 src/model/combined_load.py \
+skiloadlab-combine \
   --in data/example/runs_final_example.csv \
   --out /tmp/demo_out.csv \
   --report /tmp/demo_report.json \

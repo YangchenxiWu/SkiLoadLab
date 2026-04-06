@@ -2,56 +2,56 @@
 
 ## Overview
 
-SkiLoadLab is a reproducible research workflow for modeling downhill-skiing training load by combining internal and external load proxies within an interpretable alpha-weighted fusion framework. The repository is designed for method development, reproducible reporting, and publication-style figure generation rather than consumer-facing scoring.
+SkiLoadLab is an open-source Python toolkit for modeling downhill-skiing training load, centered on a packaged demo-compatible run-level workflow for reproducible combined-load computation, alpha-sweep diagnostics, and figure generation. Public reproducibility begins from an anonymized/demo-compatible run-level table rather than from raw GPS or heart-rate exports.
 
-## Public demo workflow vs full workflow
+This document distinguishes between:
 
-The repository supports two related workflows:
+- the maintained public analytical workflow
+- the broader methodological context represented by retained upstream utilities
 
-- **Public demo workflow:** based on the run-level table `data/example/runs_final_example.csv`
-- **Full workflow:** based on GPX tracks, Polar heart-rate exports, and DEM-based elevation sampling
+The maintained public analytical workflow is the installable package and formal CLI. Retained upstream utilities remain available for method development and extension, but they are not the primary public reproducibility path and are not the core CI-validated workflow.
 
-The public demo path is intended to reproduce the central modeling logic without exposing raw geolocation traces or identifiable physiological timestamps.
+## Maintained public analytical workflow
 
-## Data sources
+The maintained public workflow starts from:
 
-In the full workflow, SkiLoadLab combines three source types:
+- `data/example/runs_final_example.csv`
 
-- **GPX trajectory data** for run structure and movement context
-- **Polar HR exports** for physiological/internal load proxies
-- **DEM rasters** for terrain-aware elevation sampling
+In this workflow, the run-level input table already contains the standardized components `z_internal` and `z_mech`. The maintained package CLI reproduces:
 
-In the public repository, these raw sources are abstracted into a demo-compatible run-level table to support transparent method demonstration and reproducibility.
+- combined-load computation
+- alpha-sweep diagnostics
+- figure generation
 
-## GPX parsing and DEM elevation sampling
+Within this maintained workflow, figure generation consumes the combined run-level table produced by the public CLI, rather than depending on a separate raw-source preprocessing stage.
 
-The full workflow parses GPX tracks into structured movement segments and samples elevation from DEM rasters. This provides terrain-aware descriptors such as vertical drop and related downhill-run context variables.
+The formal public entry points are:
 
-The public demo workflow does not require raw DEM sampling, but the broader pipeline may rely on geospatial dependencies such as `rasterio` for this part of the workflow.
+- `skiloadlab-combine`
+- `skiloadlab-alpha-sweep`
+- `skiloadlab-make-figures`
 
-Elevation extraction is implemented via nearest-neighbor point sampling using `rasterio.sample`. Given the 30 m spatial resolution of the Copernicus DEM and the typical skier displacement at 1 Hz sampling frequency, this approach provides efficient point-wise elevation lookup while avoiding artificial smoothing of terrain features (e.g., sharp ridges or abrupt drops) that may arise under higher-order interpolation schemes. This choice prioritizes reproducibility and implementation transparency over sub-grid terrain smoothing.
+For the step-by-step public protocol, see [`reproducibility.md`](reproducibility.md).
 
-## Run segmentation
+## Broader methodological context and retained upstream utilities
 
-A continuous skiing session is partitioned into run-level units representing downhill runs versus lift/transition phases. In the current repository, run segmentation is heuristic and rule-based. This is sufficient for reproducible method development, but thresholds and logic may require adaptation across terrain, snow conditions, skier profile, and recording conditions.
+The repository also retains upstream utilities that support broader method development. These include:
 
-## HR-GPX time alignment
+- GPX parsing
+- DEM sampling
+- heuristic run segmentation
+- HR-GPX time alignment in raw-source workflows
 
-A practical challenge in the full workflow is alignment between Polar HR data and GPX-derived run structure. The current workflow uses pragmatic timestamp-based anchoring rather than fully automated drift correction. This design keeps the pipeline transparent and reproducible, while leaving room for future refinement using more robust temporal matching strategies.
+These utilities provide methodological context for how run-level inputs may be derived in broader research settings, but they are not the maintained public analytical workflow.
 
-## Internal load proxies
+## Internal and external components
 
-Internal load is represented using heart-rate-derived physiological information. Conceptually, this aligns with TRIMP-style or HR-impulse interpretations of training response. In the public demo workflow, the internal component is already represented at the run level and standardized before fusion.
+The public analytical workflow combines two standardized run-level components:
 
-## External load proxies
+- `z_internal`: standardized internal-load component
+- `z_mech`: standardized external/mechanical-load component
 
-External load is represented using terrain- and movement-derived variables, including vertical drop and related speed/mechanical context. In the public demo workflow, the external/mechanical component is likewise represented at the run level and standardized before fusion.
-
-## Normalization
-
-SkiLoadLab combines internal and external load only after expressing them on comparable standardized scales. The current implementation uses z-score normalization for the internal and external components before alpha-weighted fusion.
-
-Standardization is performed as `z = (x - μ) / σ`, where `μ` and `σ` are the mean and standard deviation of the respective component across the analyzed runs in the current input table. This places the internal and external components on a common dimensionless scale and ensures that the fusion weight `alpha` operates on variance-aligned inputs.
+Because the maintained public workflow begins from a demo-compatible run-level table, these standardized components are expected to already be present in the input file.
 
 ## Combined load model
 
@@ -65,47 +65,45 @@ where:
 - `z_mech` is the standardized external/mechanical-load component
 - `alpha` controls the relative weighting of the internal component
 
-This formulation is intentionally interpretable:
+This formulation remains intentionally interpretable:
 
 - `alpha = 0` corresponds to a purely external/mechanical score
 - `alpha = 1` corresponds to a purely internal/physiological score
 - `0 < alpha < 1` yields a blended score with explicit weighting
 
-## Alpha sweep criterion
+## Alpha-sweep criterion
 
-Rather than assuming a single fixed alpha a priori, SkiLoadLab evaluates `alpha` over the interval `[0, 1]`. For each alpha, the workflow quantifies how strongly the resulting combined load aligns with the internal and external components.
+Rather than assuming a single fixed alpha, the maintained workflow evaluates `alpha` over `[0, 1]` to quantify the trade-off between internal and external alignment.
 
 The alpha-sweep summary reports:
 
 - correlation between combined load and the internal component
 - correlation between combined load and the external component
-- a balanced score used to identify an interpretable compromise alpha
+- a balance-oriented score
 
-The current balanced criterion emphasizes symmetry between internal and external alignment rather than maximizing only one side. In practical terms, the workflow prefers an alpha that maintains strong correspondence with both components instead of overfitting to either the physiological or mechanical signal alone.
+The balance-oriented score is defined as the smaller of the two constituent correlations at a given alpha.
 
-The optimal balance point is defined as the `alpha` value that maximizes the minimum correlation between the combined index and its two constituent components, i.e. `max(min(r_int, r_ext))`. This heuristic favors an interpretable compromise solution in which neither the physiological nor the mechanical component is effectively ignored.
+## Outputs of the maintained workflow
 
-## Outputs
-
-Typical outputs include:
+Typical outputs of the maintained public analytical workflow include:
 
 - run-level combined-load CSV tables
 - JSON summary reports
 - alpha-sweep summary CSV tables
 - publication-style figures in `docs/figures/`
 
-These outputs support both reproducible analysis and manuscript/preprint preparation.
+These outputs support reproducible analysis and reporting for the public workflow.
 
-## Current assumptions and limitations
+## Current implementation constraints
 
-Several methodological boundaries should be noted:
+- public reproducibility begins from an anonymized/demo-compatible run-level table rather than raw GPS/HR exports
+- the maintained test path exercises the formal CLI
+- not all upstream utilities are part of the main validated public workflow
+- the retained upstream DEM sampling utility currently expects EPSG:4326 inputs
+- retained upstream geospatial utilities are useful for research extension, but are not the main public reproducibility path
+- time alignment between HR and GPX streams in broader upstream workflows is currently pragmatic rather than fully automated
+- run segmentation in broader upstream workflows is heuristic and may require adaptation across terrain and recording contexts
 
-- the public demo workflow is based on a processed run-level table rather than raw GPS/HR inputs
-- run segmentation is heuristic and context-dependent
-- HR-GPX alignment is currently pragmatic rather than fully automated
-- full-session behavior may depend on upstream preprocessing choices
-- the repository prioritizes transparent and reproducible method development over black-box optimization
+## Validation boundary
 
-## Reproducibility
-
-For a step-by-step public demo reproduction recipe, see [`docs/reproducibility.md`](reproducibility.md).
+Validation in the public release is software-facing: package installation, CLI execution, output generation, and automated tests. This validation boundary applies to the maintained public analytical workflow, not to every retained upstream utility in the repository.
