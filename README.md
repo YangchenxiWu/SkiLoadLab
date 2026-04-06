@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19108568.svg)](https://doi.org/10.5281/zenodo.19108568)
 
-SkiLoadLab is an open-source Python toolkit for alpine/downhill skiing, centered on a packaged demo-compatible run-level workflow for reproducible combined-load computation, alpha-sweep diagnostics, and figure generation. Public reproducibility begins from an anonymized/demo-compatible run-level table rather than from raw GPS or heart-rate exports.
+SkiLoadLab is an open-source Python toolkit for alpine skiing, centered on a packaged demo-compatible run-level workflow for reproducible combined-load computation, alpha-sweep diagnostics, and figure generation. Public reproducibility begins from an anonymized/demo-compatible run-level table rather than from raw GPS or heart-rate exports.
 
 The primary public reproducibility path is the installable package and formal CLI. Retained upstream utilities for GPX parsing, DEM sampling, and heuristic run segmentation remain available for extension and method development, but they are not the primary public reproducibility path and are not the core CI-validated workflow.
 
