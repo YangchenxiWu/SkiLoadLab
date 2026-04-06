@@ -209,6 +209,7 @@ MIT License
 
 The public demo workflow has been tested on:
 - macOS (Apple Silicon)
+- Linux
 - Windows (Python + virtual environment)
 
 All core steps (combined load, alpha sweep, figure generation, and test suite) run successfully with the example dataset.
