@@ -1,4 +1,4 @@
-# SkiLoadLab: Reproducible Training Load Modeling for Downhill Skiing
+# SkiLoadLab: Reproducible Training Load Modeling for Alpine Skiing
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19108568.svg)](https://doi.org/10.5281/zenodo.19108568)
 

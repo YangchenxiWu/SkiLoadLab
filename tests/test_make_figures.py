@@ -1,6 +1,8 @@
 import subprocess
 from pathlib import Path
 
+import pandas as pd
+
 REPO = Path(__file__).resolve().parents[1]
 
 
@@ -52,6 +54,10 @@ def test_make_figures_runs(tmp_path: Path):
     )
     assert sweep.returncode == 0, sweep.stderr + "\n" + sweep.stdout
     assert alpha_summary.exists()
+    alpha_df = pd.read_csv(alpha_summary)
+    assert len(alpha_df) > 0
+    for col in ["alpha", "score_balanced", "corr_comb_internal", "corr_comb_mech"]:
+        assert col in alpha_df.columns
 
     p = subprocess.run(
         [
