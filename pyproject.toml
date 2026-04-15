@@ -31,6 +31,7 @@ dev = [
 skiloadlab-combine = "skiloadlab.cli.combine:main"
 skiloadlab-alpha-sweep = "skiloadlab.cli.alpha_sweep:main"
 skiloadlab-make-figures = "skiloadlab.cli.make_figures:main"
+skiloadlab-compare-analysis = "skiloadlab.cli.compare_analysis:main"
 
 [tool.setuptools.packages.find]
 include = ["skiloadlab*"]
