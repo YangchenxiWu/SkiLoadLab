@@ -1,0 +1,20 @@
+{
+  "input_csv": "data/carving_v2/processed/TODO_hr_stream.csv",
+  "output_dir": "experiments/hr_dropout/results",
+  "dropout_detection": {
+    "max_gap_seconds": 2,
+    "min_gap_seconds": 1
+  },
+  "methods": [
+    "no_correction",
+    "linear_interpolation",
+    "smoothing_plus_interpolation",
+    "kalman_placeholder"
+  ],
+  "summary_targets": [
+    "run_level_internal_summary",
+    "fused_score_stability",
+    "alpha_sweep_behavior"
+  ],
+  "notes": "TODO: replace input_csv with a real HR stream export after tomorrow's intake."
+}

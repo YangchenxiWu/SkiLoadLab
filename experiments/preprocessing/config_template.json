@@ -1,0 +1,11 @@
+{
+  "input_csv": "data/carving_v2/processed/TODO_signal.csv",
+  "output_dir": "experiments/preprocessing/results",
+  "signal_column": "TODO_signal_column",
+  "methods": [
+    "no_filtering",
+    "simple_baseline_smoothing",
+    "kalman_placeholder"
+  ],
+  "notes": "TODO: use this scaffold for HR first, then extend to trajectory/elevation streams if useful."
+}
