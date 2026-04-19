@@ -205,7 +205,7 @@ def session_phase_summary(df: pd.DataFrame, metrics: list[str]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def late_session_drift_summary(df: pd.DataFrame, metrics: list[str]) -> pd.DataFrame:
+def phase_contrast_summary(df: pd.DataFrame, metrics: list[str]) -> pd.DataFrame:
     ordered = df.copy()
     ordered["session_index"] = np.arange(1, len(ordered) + 1)
     ordered["session_phase"] = _session_phase_labels(len(ordered)).values
@@ -220,7 +220,7 @@ def late_session_drift_summary(df: pd.DataFrame, metrics: list[str]) -> pd.DataF
         early_mean = float(early_vals.mean()) if len(early_vals) else np.nan
         mid_mean = float(mid_vals.mean()) if len(mid_vals) else np.nan
         late_mean = float(late_vals.mean()) if len(late_vals) else np.nan
-        drift_value = (
+        contrast_value = (
             float(late_mean - early_mean)
             if pd.notna(late_mean) and pd.notna(early_mean)
             else np.nan
@@ -229,7 +229,7 @@ def late_session_drift_summary(df: pd.DataFrame, metrics: list[str]) -> pd.DataF
         rows.append(
             {
                 "metric": metric,
-                "drift_method": "late_tercile_mean_minus_early_tercile_mean",
+                "contrast_method": "late_tercile_mean_minus_early_tercile_mean",
                 "run_order_basis": "input_row_order",
                 "phase_definition": "contiguous_session_terciles",
                 "n_total": int(vals.notna().sum()),
@@ -239,7 +239,7 @@ def late_session_drift_summary(df: pd.DataFrame, metrics: list[str]) -> pd.DataF
                 "early_mean": early_mean,
                 "mid_mean": mid_mean,
                 "late_mean": late_mean,
-                "late_session_drift": drift_value,
+                "late_minus_early_contrast": contrast_value,
             }
         )
 
@@ -407,10 +407,10 @@ def run_comparison_analysis(
     phases.to_csv(phase_path, index=False)
     ok(f"Saved: {phase_path.resolve()}")
 
-    drift = late_session_drift_summary(df, metrics)
-    drift_path = out_dir / "late_session_drift.csv"
-    drift.to_csv(drift_path, index=False)
-    ok(f"Saved: {drift_path.resolve()}")
+    contrast = phase_contrast_summary(df, metrics)
+    contrast_path = out_dir / "phase_contrast_summary.csv"
+    contrast.to_csv(contrast_path, index=False)
+    ok(f"Saved: {contrast_path.resolve()}")
 
     cases = interpretive_cases(df, metrics, case_count=case_count)
     cases_csv_path = out_dir / "interpretive_cases.csv"
@@ -428,7 +428,7 @@ def run_comparison_analysis(
         "correlation_matrix_csv": str(corr_path),
         "ranking_stability_csv": str(ranking_path),
         "session_phase_summary_csv": str(phase_path),
-        "late_session_drift_csv": str(drift_path),
+        "phase_contrast_summary_csv": str(contrast_path),
         "interpretive_cases_csv": str(cases_csv_path),
         "interpretive_cases_md": str(cases_md_path),
     }
@@ -439,7 +439,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
             "Generate run-level comparison analysis outputs including correlation matrix, "
-            "ranking stability, session-phase stratification, late-session drift, "
+            "ranking stability, session-phase stratification, phase contrasts, "
             "and interpretive cases."
         )
     )

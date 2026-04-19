@@ -212,19 +212,54 @@ def fig_alpha_sweep(summary_csv: Path, out_dir: Path, also_pdf: bool) -> None:
         ("score_balanced", "balanced score"),
     ]
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(7.2, 4.8))
     x = pd.to_numeric(df["alpha"], errors="coerce")
+    plotted: list[tuple[str, pd.Series]] = []
     for col, label in cand_series:
         if col in df.columns:
             y = pd.to_numeric(df[col], errors="coerce")
             m = (~x.isna()) & (~y.isna())
             if m.sum() > 0:
-                plt.plot(x[m], y[m], marker="o", linewidth=1, label=label)
+                plt.plot(
+                    x[m],
+                    y[m],
+                    marker="o",
+                    markersize=5.0,
+                    linewidth=2.0,
+                    label=label,
+                )
+                plotted.append((col, y))
 
-    plt.xlabel("alpha (weight on internal)")
-    plt.ylabel("metric")
-    plt.title("Alpha sweep diagnostics")
-    plt.legend()
+    alpha_ref = 0.50
+    if plotted:
+        best_col = "score_balanced" if "score_balanced" in df.columns else plotted[0][0]
+        y_ref = pd.to_numeric(df.loc[np.isclose(x, alpha_ref), best_col], errors="coerce")
+        if not y_ref.empty and pd.notna(y_ref.iloc[0]):
+            y_val = float(y_ref.iloc[0])
+            plt.axvline(alpha_ref, color="0.45", linestyle="--", linewidth=1.5)
+            plt.scatter([alpha_ref], [y_val], color="black", s=24, zorder=5)
+            plt.annotate(
+                r"$\alpha = 0.50$",
+                xy=(alpha_ref, y_val),
+                xytext=(0.58, y_val + 0.012),
+                textcoords="data",
+                fontsize=10,
+                arrowprops={"arrowstyle": "->", "linewidth": 1.1, "color": "0.35"},
+            )
+
+    plt.xlabel("alpha (weight on internal)", fontsize=12)
+    plt.ylabel("metric", fontsize=12)
+    plt.title("Alpha sweep diagnostics", fontsize=13)
+    plt.xticks(fontsize=10.5)
+    plt.yticks(fontsize=10.5)
+    plt.legend(
+        fontsize=9,
+        frameon=True,
+        borderpad=0.35,
+        labelspacing=0.3,
+        handlelength=1.6,
+        handletextpad=0.5,
+    )
     save_fig(fig, out_dir / "fig06_alpha_sweep.png", also_pdf)
 
 

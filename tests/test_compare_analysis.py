@@ -33,11 +33,11 @@ def test_compare_analysis_runs(tmp_path: Path):
     corr_path = out_dir / "correlation_matrix.csv"
     ranking_path = out_dir / "ranking_stability.csv"
     phase_path = out_dir / "session_phase_summary.csv"
-    drift_path = out_dir / "late_session_drift.csv"
+    contrast_path = out_dir / "phase_contrast_summary.csv"
     cases_csv_path = out_dir / "interpretive_cases.csv"
     cases_md_path = out_dir / "interpretive_cases.md"
 
-    for path in [corr_path, ranking_path, phase_path, drift_path, cases_csv_path, cases_md_path]:
+    for path in [corr_path, ranking_path, phase_path, contrast_path, cases_csv_path, cases_md_path]:
         assert path.exists(), path.name
 
     corr = pd.read_csv(corr_path)
@@ -53,15 +53,17 @@ def test_compare_analysis_runs(tmp_path: Path):
     phase = pd.read_csv(phase_path)
     assert set(["early", "mid", "late"]).issubset(set(phase["session_phase"]))
 
-    drift = pd.read_csv(drift_path)
-    assert len(drift) > 0
-    assert set(["metric", "drift_method", "late_session_drift"]).issubset(set(drift.columns))
-    assert set(drift["drift_method"]) == {"late_tercile_mean_minus_early_tercile_mean"}
-    assert set(drift["run_order_basis"]) == {"input_row_order"}
-    assert set(drift["phase_definition"]) == {"contiguous_session_terciles"}
-    assert "z_trimp" in set(drift["metric"])
-    assert "vertical_drop_m" in set(drift["metric"])
-    assert "combined_load_v2" in set(drift["metric"])
+    contrast = pd.read_csv(contrast_path)
+    assert len(contrast) > 0
+    assert set(["metric", "contrast_method", "late_minus_early_contrast"]).issubset(
+        set(contrast.columns)
+    )
+    assert set(contrast["contrast_method"]) == {"late_tercile_mean_minus_early_tercile_mean"}
+    assert set(contrast["run_order_basis"]) == {"input_row_order"}
+    assert set(contrast["phase_definition"]) == {"contiguous_session_terciles"}
+    assert "z_trimp" in set(contrast["metric"])
+    assert "vertical_drop_m" in set(contrast["metric"])
+    assert "combined_load_v2" in set(contrast["metric"])
 
     cases = pd.read_csv(cases_csv_path)
     assert 2 <= len(cases) <= 3
