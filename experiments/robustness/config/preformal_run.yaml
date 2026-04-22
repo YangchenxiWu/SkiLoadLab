@@ -1,0 +1,39 @@
+final_runs_csv: output/carving_v2_cleaned/runs_carving_final.csv
+runs_root: output/carving_v2_cleaned
+raw_dir: data/carving_v2/raw
+anchors_json: output/carving_v2_cleaned/run_level_anchors.json
+dem_path: data/external/dem/dem.tif
+output_dir: experiments/robustness/results/preformal_run
+subset_names:
+  - primary
+alpha: 0.5
+top_k: 3
+max_runs: 8
+repeats: 5
+seed_base: 4242
+save_perturbed_tracks: true
+perturbations:
+  elevation:
+    - value: 2.0
+      label: low
+    - value: 5.0
+      label: medium
+  position:
+    - value: 2.0
+      label: low
+    - value: 5.0
+      label: medium
+  sampling:
+    - value: 2
+      label: low
+    - value: 3
+      label: medium
+  temporal:
+    - value: 0.75
+      label: low
+    - value: 1.5
+      label: medium
+position_sanity_export:
+  session_label: polar_session_2026-02-03_09-55-13
+  run_id: run_05
+  repeat_id: 1

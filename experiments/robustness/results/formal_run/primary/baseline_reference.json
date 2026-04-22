@@ -1,0 +1,22 @@
+{
+  "subset_name": "primary",
+  "n_runs": 27,
+  "alpha": 0.5,
+  "top_k": 3,
+  "zscore_params": {
+    "vertical_drop_m": {
+      "mean": 364.9726652922454,
+      "std": 138.63594761068833
+    },
+    "impulse_hr_above_rest_bpms": {
+      "mean": 17968.62962962963,
+      "std": 7626.501699025719
+    }
+  },
+  "baseline_top_k_run_uids": [
+    "polar_session_2026-02-06_10-17-06::run_04",
+    "polar_session_2026-02-03_09-55-13::run_06",
+    "polar_session_2026-02-05_10-21-15::run_02"
+  ],
+  "baseline_phase_contrast_combined_load_v2": -0.5275345174631655
+}
