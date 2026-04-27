@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -12,7 +13,7 @@ def test_compare_analysis_runs(tmp_path: Path):
 
     p = subprocess.run(
         [
-            "python3",
+            sys.executable,
             "-m",
             "skiloadlab.core_compare",
             "--runs",

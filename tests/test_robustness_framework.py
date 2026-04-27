@@ -1,5 +1,6 @@
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -189,7 +190,7 @@ def test_robustness_framework_test_run(tmp_path: Path):
 
     p = subprocess.run(
         [
-            "python3",
+            sys.executable,
             "-m",
             "experiments.robustness.cli",
             "--config",
@@ -264,7 +265,7 @@ def test_robustness_cli_explicit_paths(tmp_path: Path):
     out_dir = tmp_path / "explicit_outputs"
     p = subprocess.run(
         [
-            "python3",
+            sys.executable,
             "-m",
             "experiments.robustness.cli",
             "--config",
