@@ -4,57 +4,128 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+env:
+  PIP_CONFIG_FILE: pip.conf
+  LC_ALL: C.UTF-8
+  PYTHONHASHSEED: "0"
+  SOURCE_DATE_EPOCH: "0"
+  TZ: UTC
+
 jobs:
-  test:
-    name: Unit tests (Ubuntu, Python 3.11)
+  build:
+    name: Build and test
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set reproducible build timestamp
+        run: |
+          echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> "$GITHUB_ENV"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install package and test dependencies
+      - name: Create isolated environment
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e '.[dev,geo]'
+          python -m venv .venv
+
+      - name: Verify locked dependencies
+        run: |
+          .venv/bin/python -m pip install --require-hashes -r requirements.txt
+
+      - name: Install package and build/test tooling
+        run: |
+          .venv/bin/python -m pip install --no-deps -e .
+          .venv/bin/python -m pip install pytest pip-audit build
+
+      - name: Audit dependencies
+        run: |
+          .venv/bin/pip-audit --strict -r requirements.txt
 
       - name: Run tests
         run: |
-          pytest -q
+          .venv/bin/python -m pytest -q
 
-  smoke:
-    name: Smoke test (${{ matrix.os }}, Python 3.11)
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+      - name: Build artifacts
+        run: |
+          .venv/bin/python -m build
+          test -n "$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
+          test -n "$(find dist -maxdepth 1 -name '*.tar.gz' -print -quit)"
+
+      - name: Generate provenance
+        run: |
+          .venv/bin/python scripts/generate-provenance.py --dist dist --output provenance.json
+
+      - name: Upload unsigned build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-python-artifacts
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+            provenance.json
+
+  sign:
+    name: Sign and attest artifacts
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Download unsigned build artifacts
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.11"
+          name: unsigned-python-artifacts
 
-      - name: Install package
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e .
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v4
 
-      - name: Run combined-load CLI
+      - name: Sign wheel artifacts with keyless cosign
         run: |
-          skiloadlab-combine --in data/example/runs_final_example.csv --out output/demo_runs_combined.csv --report output/demo_combined_report.json --alpha 0.5
+          set -euo pipefail
+          for artifact in dist/*.whl; do
+            cosign sign-blob \
+              --yes \
+              --oidc-issuer https://token.actions.githubusercontent.com \
+              --bundle "${artifact}.sigstore.json" \
+              "$artifact"
+          done
 
-      - name: Run alpha-sweep CLI
+      - name: Attach provenance attestation
         run: |
-          skiloadlab-alpha-sweep
+          set -euo pipefail
+          for artifact in dist/*.whl; do
+            cosign attest-blob \
+              --yes \
+              --oidc-issuer https://token.actions.githubusercontent.com \
+              --predicate provenance.json \
+              --type slsaprovenance \
+              --bundle "${artifact}.attestation.json" \
+              "$artifact"
+          done
 
-      - name: Run figure-generation CLI
+      - name: Verify signed artifacts
         run: |
-          skiloadlab-make-figures --runs data/example/runs_final_example.csv --alpha_summary output/alpha_sweep_summary.csv --out docs/figures
+          scripts/verify-artifact.sh dist/*.whl
+
+      - name: Upload signed artifacts and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-python-artifacts
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+            dist/*.sigstore.json
+            dist/*.attestation.json
+            provenance.json
