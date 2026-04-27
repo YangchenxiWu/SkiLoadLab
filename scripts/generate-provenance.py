@@ -46,8 +46,70 @@ def main() -> None:
     }
     artifact_sha256 = {str(path): sha256_file(path) for path in artifacts}
 
+    commit_sha = os.environ.get("GITHUB_SHA") or git_output("rev-parse", "HEAD")
+    github_repository = os.environ.get("GITHUB_REPOSITORY", "")
+    github_server_url = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
+    github_run_id = os.environ.get("GITHUB_RUN_ID", "")
+    run_url = (
+        f"{github_server_url}/{github_repository}/actions/runs/{github_run_id}"
+        if github_repository and github_run_id
+        else ""
+    )
+
     provenance = {
-        "_type": "https://slsa.dev/provenance/v1",
+        "builder": {
+            "id": "https://github.com/actions/runner/github-hosted",
+        },
+        "buildType": "https://github.com/Attestations/GitHubActionsWorkflow@v1",
+        "invocation": {
+            "configSource": {
+                "uri": f"git+{github_server_url}/{github_repository}.git"
+                if github_repository
+                else git_output("config", "--get", "remote.origin.url"),
+                "digest": {"sha1": commit_sha},
+                "entryPoint": ".github/workflows/ci.yml",
+            },
+            "parameters": {},
+            "environment": {
+                "github_action": os.environ.get("GITHUB_ACTION"),
+                "github_actor": os.environ.get("GITHUB_ACTOR"),
+                "github_event_name": os.environ.get("GITHUB_EVENT_NAME"),
+                "github_job": os.environ.get("GITHUB_JOB"),
+                "github_ref": os.environ.get("GITHUB_REF"),
+                "github_repository": github_repository or None,
+                "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+                "github_run_id": github_run_id or None,
+                "github_run_number": os.environ.get("GITHUB_RUN_NUMBER"),
+                "github_server_url": github_server_url,
+                "runner_arch": os.environ.get("RUNNER_ARCH"),
+                "runner_name": os.environ.get("RUNNER_NAME"),
+                "runner_os": os.environ.get("RUNNER_OS"),
+                "python_version": platform.python_version(),
+                "source_date_epoch": os.environ.get("SOURCE_DATE_EPOCH"),
+            },
+        },
+        "metadata": {
+            "buildInvocationId": run_url or github_run_id or commit_sha,
+            "completeness": {
+                "parameters": True,
+                "environment": True,
+                "materials": True,
+            },
+            "reproducible": False,
+            "finishedOn": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        },
+        "materials": [
+            {
+                "uri": f"git+{github_server_url}/{github_repository}.git"
+                if github_repository
+                else git_output("config", "--get", "remote.origin.url"),
+                "digest": {"sha1": commit_sha},
+            },
+            *[
+                {"uri": str(path), "digest": {"sha256": data["sha256"]}}
+                for path, data in requirements_hash_summary.items()
+            ],
+        ],
         "commit_sha": os.environ.get("GITHUB_SHA") or git_output("rev-parse", "HEAD"),
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "artifact_sha256": artifact_sha256,
@@ -64,7 +126,7 @@ def main() -> None:
             "github_event_name": os.environ.get("GITHUB_EVENT_NAME"),
             "github_job": os.environ.get("GITHUB_JOB"),
             "github_ref": os.environ.get("GITHUB_REF"),
-            "github_repository": os.environ.get("GITHUB_REPOSITORY"),
+            "github_repository": github_repository or None,
             "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
             "github_run_id": os.environ.get("GITHUB_RUN_ID"),
             "github_run_number": os.environ.get("GITHUB_RUN_NUMBER"),
