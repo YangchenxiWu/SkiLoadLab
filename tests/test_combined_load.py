@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -14,7 +15,9 @@ def test_combined_load_runs(tmp_path: Path):
 
     p = subprocess.run(
         [
-            "skiloadlab-combine",
+            sys.executable,
+            "-m",
+            "skiloadlab.cli.combine",
             "--in",
             str(inp),
             "--out",

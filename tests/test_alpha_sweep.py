@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -15,7 +16,9 @@ def test_alpha_sweep_runs(tmp_path: Path):
 
     p = subprocess.run(
         [
-            "skiloadlab-alpha-sweep",
+            sys.executable,
+            "-m",
+            "skiloadlab.cli.alpha_sweep",
             "--in",
             str(inp),
             "--alpha_step",

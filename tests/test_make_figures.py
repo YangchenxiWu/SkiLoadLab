@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -17,7 +18,9 @@ def test_make_figures_runs(tmp_path: Path):
 
     combine = subprocess.run(
         [
-            "skiloadlab-combine",
+            sys.executable,
+            "-m",
+            "skiloadlab.cli.combine",
             "--in",
             str(runs),
             "--out",
@@ -36,7 +39,9 @@ def test_make_figures_runs(tmp_path: Path):
 
     sweep = subprocess.run(
         [
-            "skiloadlab-alpha-sweep",
+            sys.executable,
+            "-m",
+            "skiloadlab.cli.alpha_sweep",
             "--in",
             str(runs),
             "--alpha_step",
@@ -61,7 +66,9 @@ def test_make_figures_runs(tmp_path: Path):
 
     p = subprocess.run(
         [
-            "skiloadlab-make-figures",
+            sys.executable,
+            "-m",
+            "skiloadlab.cli.make_figures",
             "--runs",
             str(combined_runs),
             "--alpha_summary",
