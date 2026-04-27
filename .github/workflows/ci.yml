@@ -97,7 +97,6 @@ jobs:
           for artifact in dist/*.whl; do
             cosign sign-blob \
               --yes \
-              --oidc-issuer https://token.actions.githubusercontent.com \
               --bundle "${artifact}.sigstore.json" \
               "$artifact"
           done
@@ -108,7 +107,6 @@ jobs:
           for artifact in dist/*.whl; do
             cosign attest-blob \
               --yes \
-              --oidc-issuer https://token.actions.githubusercontent.com \
               --predicate provenance.json \
               --type slsaprovenance \
               --bundle "${artifact}.attestation.json" \
