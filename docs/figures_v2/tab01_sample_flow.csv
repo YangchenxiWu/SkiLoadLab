@@ -1,0 +1,8 @@
+group,n_runs,note
+Total valid runs,64,All downhill-valid runs retained before carving-focused labeling
+Sessions,4,Recording window: 2026-02-03 to 2026-02-06
+strict_carving,7,High-confidence subset nested within the primary analytical set
+carving_like,20,Included in the primary analytical set
+Primary analytical set,27,Defined as strict_carving + carving_like
+non_carving_borderline,19,Excluded from the primary carving-focused set
+non_carving,18,Excluded from the primary carving-focused set

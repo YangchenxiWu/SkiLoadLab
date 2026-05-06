@@ -1,0 +1,7 @@
+numpy
+pandas
+matplotlib
+pillow>=12.2.0
+PyYAML
+click
+rasterio<1.5
