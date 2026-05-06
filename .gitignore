@@ -11,6 +11,9 @@ output/
 __pycache__/
 *.pyc
 .pytest_cache/
+build/
+dist/
+*.egg-info/
 
 # ---- mac ----
 .DS_Store
@@ -28,7 +31,16 @@ __pycache__/
 # ---- optional ----
 .venv/
 .env
+pip.conf
+sbom.json
 
 src/model/*.bak_*
 src/model/*_bak_*
 docs/figures/*.pdf
+
+# ---- paper local drafts and preview builds ----
+paper/*_preview.pdf
+paper/*_preview.tex
+paper/*草稿.docx
+paper/* draft.docx
+paper/*draft*.docx
